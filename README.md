@@ -1,2 +1,2 @@
 # project-databricks-mahh
-ETL de ventas con arquitectura Medallion (Bronze, Silver, Gold) usando Databricks y Kaggle.
+ETL con Databricks y arquitectura Medallion usando Kaggle Ecommerce + Young's Modulus
