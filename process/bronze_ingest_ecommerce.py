@@ -1,26 +1,34 @@
 from pyspark.sql import functions as F
 
-RAW_PATH = "abfss://raw@<storage_account>.dfs.core.windows.net/ecommerce/"
-BRONZE_TABLE = "retail_bronze.ecommerce_orders"
 
-def ingest_ecommerce_orders(spark):
+KAGGLE_ECOMMERCE_CSV = (
+    "abfss://landing@datalakeproject.dfs.core.windows.net/"
+    "kaggle/Ecommerce_Sales_Prediction_Dataset.csv"
+)
+
+
+RAW_ECOMMERCE_PATH = (
+    "abfss://raw@datalakeproject.dfs.core.windows.net/"
+    "retail/ecommerce/"
+)
+
+
+def ingest_ecommerce_to_raw(spark):
     df = (
         spark.read
              .format("csv")
              .option("header", "true")
              .option("inferSchema", "true")
-             .load(RAW_PATH)
+             .load(KAGGLE_ECOMMERCE_CSV)
     )
 
-    df = df.withColumn("ingestion_ts", F.current_timestamp())
-    df = df.withColumn("source_system", F.lit("kaggle_ecommerce"))
+    df = df.withColumn("raw_ingestion_ts", F.current_timestamp())
 
     (df.write
-       .format("delta")
        .mode("overwrite")
-       .saveAsTable(BRONZE_TABLE)
+       .parquet(RAW_ECOMMERCE_PATH)
     )
 
+
 if __name__ == "__main__":
-    # En Databricks el objeto spark ya existe
-    ingest_ecommerce_orders(spark)
+    ingest_ecommerce_to_raw(spark)
